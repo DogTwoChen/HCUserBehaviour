@@ -108,9 +108,13 @@ static char kBlackNameListKey;
                 NSDictionary *dict = (NSDictionary *)valueObj;
                 NSMutableDictionary *mutableDict = [dict mutableCopy];
                 [dict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-                    NSArray *names = [obj propertyNames:[obj class]];
-                    NSDictionary *values = [obj propertyValues:names];
-                    [mutableDict setObject:values forKey:key];
+                    if ([obj isKindOfClass:[NSString class]] || [obj isKindOfClass:[NSNumber class]]) {
+                        
+                    } else {
+                        NSArray *names = [obj propertyNames:[obj class]];
+                        NSDictionary *values = [obj propertyValues:names];
+                        [mutableDict setObject:values forKey:key];
+                    }
                 }];
                 valueObj = mutableDict;
                 propertyValuesDic[propertyName] = valueObj;

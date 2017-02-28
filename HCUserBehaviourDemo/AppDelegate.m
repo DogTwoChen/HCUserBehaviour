@@ -21,6 +21,7 @@
     NSLog(@"didFinishLaunchingWithOptions");
     
     [[HCUserBehaviour sharedInstance] reportPolicy:HCReportPolicyBatch];
+    [[HCUserBehaviour sharedInstance] setBlackPageNameList:@[@"UINavigationController"]];
     
     return YES;
 }

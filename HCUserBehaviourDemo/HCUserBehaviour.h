@@ -76,11 +76,15 @@ typedef NS_ENUM(NSInteger, HCReportPolicy) {
 
 - (void)event:(NSString *)eventId;
 
-- (void)event:(NSString *)eventId attributes:(NSDictionary *)attributes;
+- (void)event:(NSString *)eventId attributes:(NSDictionary *)attributes; //字符串 键值对，看下友盟有没有要求。
 
 - (void)userlogInWithName:(NSString *)userName channel:(NSString *)channel;
 
 - (void)userlogOut;
+
+- (NSArray *)getBlackPageNameList;
+
+- (void)setBlackPageNameList:(NSArray *)array;
 
 @end
 /*

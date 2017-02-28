@@ -23,6 +23,8 @@
 
 @property (nonatomic, strong) NSDateFormatter *dateFormatter;
 
+@property (nonatomic, copy) NSArray *blackNameList;
+
 @end
 
 @implementation HCUserBehaviour
@@ -62,7 +64,7 @@ static NSString *const kDataSubPath = @"data";
     _dateFormatter = [[NSDateFormatter alloc]init];
     _dateFormatter.dateFormat = @"yyyyMMdd";
     
-    [self hc_setJSONBlackNameList:@[@"concurrentQueue",@"dateFormatter"]];
+    [self hc_setJSONBlackNameList:@[@"concurrentQueue",@"dateFormatter",@"blackNameList"]];
     
     _mutablePages = [NSMutableArray array];
     _mutableUsers = [NSMutableArray array];
@@ -163,6 +165,11 @@ static NSString *const kDataSubPath = @"data";
 }
 
 - (void)saveData:(void (^)())doneBlock {
+    if (_mutablePages.count == 0 && _mutableUsers.count == 0) {
+        doneBlock();
+        return;
+    }
+    
     dispatch_async(_concurrentQueue, ^{
         NSLog(@"保存数据");
         NSError *error = nil;
@@ -243,6 +250,14 @@ static NSString *const kDataSubPath = @"data";
     return [[NSUserDefaults alloc] initWithSuiteName:@"com.HCUserBehaviour.preference"];
 }
 
+- (NSArray *)getBlackPageNameList {
+    return _blackNameList;
+}
+
+- (void)setBlackPageNameList:(NSArray *)array {
+    _blackNameList = array;
+}
+
 #pragma mark - 文件操作
 - (void)saveData:(NSData *)data fileName:(NSString *)fileName directoryName:(NSString *)directoryName{
     NSLog(@"保存数据的路径:%@",directoryName);
@@ -281,6 +296,10 @@ static NSString *const kDataSubPath = @"data";
 
 #pragma mark - 记录
 - (void)enterPage:(NSString *)pageName {
+    if ([_blackNameList containsObject:pageName]) {
+        return;
+    }
+    
     HCPage *page = [[HCPage alloc]initWithName:pageName userName:_currentUser.name];
     [_mutablePages addObject:page];
     [_lastPages setObject:page forKey:pageName];
@@ -290,6 +309,11 @@ static NSString *const kDataSubPath = @"data";
 }
 
 - (void)exitPage:(NSString *)pageName {
+    if ([_blackNameList containsObject:pageName]) {
+        NSLog(@"exitPage 该 page 在 黑名单中");
+        return;
+    }
+    
     HCPage *lastPage = _lastPages[pageName];
     if (lastPage) {
         lastPage.endTime = [[NSDate new]timeIntervalSince1970];
