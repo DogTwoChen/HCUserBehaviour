@@ -31,10 +31,12 @@
 }
 
 - (void)event:(NSString *)eventId attributes:(NSDictionary *)attributes {
-    HCEvent *event = [[HCEvent alloc]initWithName:eventId
-                                             page:_name
-                                       parameters:attributes];
-    [_mutableEvents addObject:event];
+    @synchronized (_mutableEvents) {
+        HCEvent *event = [[HCEvent alloc]initWithName:eventId
+                                                 page:_name
+                                           parameters:attributes];
+        [_mutableEvents addObject:event];
+    }
 }
 
 - (void)setEndTime:(NSTimeInterval)endTime {

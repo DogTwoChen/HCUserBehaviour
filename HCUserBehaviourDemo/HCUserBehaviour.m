@@ -42,7 +42,6 @@ static NSString *const kDataSubPath = @"data";
     static id instance;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        //序列化对象，没有在 new。
         instance = [self new];
     });
     return instance;
@@ -235,7 +234,9 @@ static NSString *const kDataSubPath = @"data";
 }
 
 - (HCPage *)currentPage {
-    return _mutablePages.lastObject;
+    @synchronized (_mutablePages) {
+        return _mutablePages.lastObject;
+    }
 }
 
 - (NSArray *)pages {
@@ -296,33 +297,43 @@ static NSString *const kDataSubPath = @"data";
 
 #pragma mark - 记录
 - (void)enterPage:(NSString *)pageName {
-    if ([_blackNameList containsObject:pageName]) {
-        return;
+    @synchronized (_blackNameList) {
+        if ([_blackNameList containsObject:pageName]) {
+            return;
+        }
     }
     
     HCPage *page = [[HCPage alloc]initWithName:pageName userName:_currentUser.name];
-    [_mutablePages addObject:page];
-    [_lastPages setObject:page forKey:pageName];
+    @synchronized (_mutablePages) {
+        [_mutablePages addObject:page];
+    }
+    @synchronized (_lastPages) {
+        [_lastPages setObject:page forKey:pageName];
+    }
     page.beginTime = [[NSDate new]timeIntervalSince1970];
     
     NSLog(@"进入页面,%@:%@",pageName,page);
 }
 
 - (void)exitPage:(NSString *)pageName {
-    if ([_blackNameList containsObject:pageName]) {
-        NSLog(@"exitPage 该 page 在 黑名单中");
-        return;
+    @synchronized (_blackNameList) {
+        if ([_blackNameList containsObject:pageName]) {
+            NSLog(@"exitPage 该 page 在 黑名单中");
+            return;
+        }
     }
     
-    HCPage *lastPage = _lastPages[pageName];
-    if (lastPage) {
-        lastPage.endTime = [[NSDate new]timeIntervalSince1970];
-        [_lastPages removeObjectForKey:pageName];
+    @synchronized (_lastPages) {
+        HCPage *lastPage = _lastPages[pageName];
+        if (lastPage) {
+            lastPage.endTime = [[NSDate new]timeIntervalSince1970];
+            [_lastPages removeObjectForKey:pageName];
+        }
+        else {
+            NSLog(@"_lastPages 取不到对应的页面");
+        }
+        NSLog(@"离开页面,%@:%@",pageName,lastPage);
     }
-    else {
-        NSLog(@"_lastPages 取不到对应的页面");
-    }
-    NSLog(@"离开页面,%@:%@",pageName,lastPage);
 }
 
 - (void)event:(NSString *)eventId {
@@ -335,24 +346,21 @@ static NSString *const kDataSubPath = @"data";
 }
 
 - (void)userlogInWithName:(NSString *)userName channel:(NSString *)channel {
-    _currentUser = [[HCUser alloc]initWithName:userName channel:channel];
-    [_currentUser logIn];
-    [_mutableUsers addObject:_currentUser];
-    NSLog(@"用户登录，用户:%@, 登录渠道:%@",_currentUser,channel);
+    @synchronized (_mutableUsers) {
+        _currentUser = [[HCUser alloc]initWithName:userName channel:channel];
+        [_currentUser logIn];
+        [_mutableUsers addObject:_currentUser];
+        NSLog(@"用户登录，用户:%@, 登录渠道:%@",_currentUser,channel);
+    }
 }
 
 - (void)userlogOut {
-    NSLog(@"用户退出,用户:%@",_currentUser);
-    [_currentUser logOut];
-    _currentUser = nil;
-    [_mutableUsers removeObject:_currentUser];
+    @synchronized (_mutableUsers) {
+        NSLog(@"用户退出,用户:%@",_currentUser);
+        [_currentUser logOut];
+        _currentUser = nil;
+        [_mutableUsers removeObject:_currentUser];
+    }
 }
 
 @end
-
-
-
-
-
-
-
