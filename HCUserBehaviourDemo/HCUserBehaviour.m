@@ -9,6 +9,7 @@
 #import "HCUserBehaviour.h"
 #import <UIKit/UIKit.h>
 #import "NSObject+HCJSON.h"
+#import "HCUploadDataManager.h"
 
 @interface HCUserBehaviour ()
 {
@@ -20,6 +21,8 @@
 @property (nonatomic, readwrite, assign) NSTimeInterval lastUploadTime;
 
 @property (nonatomic, strong) dispatch_queue_t concurrentQueue;
+
+@property (nonatomic, strong) dispatch_semaphore_t uploadTaskSemaphore;
 
 @property (nonatomic, strong) NSDateFormatter *dateFormatter;
 
@@ -68,7 +71,9 @@ static NSString *const kDataSubPath = @"data";
     _mutablePages = [NSMutableArray array];
     _mutableUsers = [NSMutableArray array];
     _lastPages = [NSMutableDictionary new];
+    _maxConcurrentUploadNumber = 3;
     _concurrentQueue = dispatch_queue_create("com.hcuserbehaviour.concurrentqueue", DISPATCH_QUEUE_CONCURRENT);
+    _uploadTaskSemaphore = dispatch_semaphore_create(_maxConcurrentUploadNumber * 2);//暂定 6 个
     
     UIDevice *device = [[UIDevice alloc]init];
     _appVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
@@ -173,13 +178,17 @@ static NSString *const kDataSubPath = @"data";
         NSLog(@"保存数据");
         NSError *error = nil;
         NSData *data = [self hc_getJsonWithError:&error];
-//        NSData *data = [NSData new];
         if (data) {
             NSDate *todayDate = [NSDate new];
             NSString *todayStr = [_dateFormatter stringFromDate:todayDate];
             
-            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-            NSString *documentDirectory = paths.firstObject;
+            NSString *documentDirectory;
+            if (_delegate && [_delegate respondsToSelector:@selector(userBehaviourDataSavePath)]) {
+                documentDirectory = [_delegate userBehaviourDataSavePath];
+            } else {
+                NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                documentDirectory = paths.firstObject;
+            }
             
             NSString *userBehaviourPath = [documentDirectory stringByAppendingPathComponent:kDataMainPath];
             NSString *dataPath = [userBehaviourPath stringByAppendingPathComponent:kDataSubPath];
@@ -208,12 +217,84 @@ static NSString *const kDataSubPath = @"data";
 }
 
 - (void)uploadData {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        sleep(3);
-        NSLog(@"上传成功");
-        [self setLastUploadTime:[[NSDate new]timeIntervalSince1970]];
-        NSLog(@"清理本地数据");
-    });
+    //构建 操作单元 执行上传文件的任务，串行并行都可以。参考 SDWebImage
+    //获取 /data 下面的日期目录列表
+    NSLog(@"开始上传---------");
+    NSString *documentDirectory;
+    if (_delegate && [_delegate respondsToSelector:@selector(userBehaviourDataSavePath)]) {
+        documentDirectory = [_delegate userBehaviourDataSavePath];
+    } else {
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        documentDirectory = paths.firstObject;
+    }
+    NSString *userBehaviourPath = [documentDirectory stringByAppendingPathComponent:kDataMainPath];
+    NSString *dataPath = [userBehaviourPath stringByAppendingPathComponent:kDataSubPath];
+
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error;
+    NSArray *subDir = [fileManager subpathsOfDirectoryAtPath:dataPath error:&error];
+    if (error) {
+        NSLog(@"获取 ./data 下的子目录 失败");
+    } else {
+        [subDir enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            NSString *path = obj;
+            NSString *filePath = [dataPath stringByAppendingPathComponent:path];
+            BOOL isDir;
+            [fileManager fileExistsAtPath:filePath isDirectory:&isDir];//看下有没有更方便的方法
+            if (isDir) {
+                NSError *filesError;
+                NSArray *subFiles = [fileManager subpathsOfDirectoryAtPath:filePath error:&filesError];
+#ifdef TARGET_IPHONE_SIMULATOR
+                if ([subFiles count] == 1) {//mac OS 应排除 .DS_Store 再测试下
+                    [self deleteFileWithPath:filePath];
+                }
+#endif
+                if ([subFiles count] <= 0) {
+                    [self deleteFileWithPath:filePath];
+                }
+            } else {//是文件
+                NSString *fileExtension = [filePath pathExtension];
+                if ([fileExtension rangeOfString:@"json"].location != NSNotFound) {
+                    //则是待上传的文件 323242342.json
+                    //打算用信号量控制...
+                    dispatch_semaphore_wait(_uploadTaskSemaphore, DISPATCH_TIME_FOREVER);
+                    //默认 队列里 可以追加的任务最大为：最大并发数 * 2 完成一个则
+                    if (_delegate && [_delegate respondsToSelector:@selector(userBehaviourUploadWithFilePath:completedBlock:)]) {
+                        NSURL *fileURL = [NSURL URLWithString:filePath];
+                        [_delegate userBehaviourUploadWithFilePath:fileURL completedBlock:^(BOOL finished) {
+                            if (finished) {
+                                dispatch_semaphore_signal(_uploadTaskSemaphore);
+                                BOOL isExist = [fileManager fileExistsAtPath:fileURL.absoluteString];
+                                if (isExist) {
+                                    [self deleteFileWithPath:fileURL.absoluteString];
+                                }
+                            }
+                        }];
+                    } else {
+                        NSLog(@"添加上传任务到队列---------");
+                        NSLog(@"上传任务路径:%@",filePath);
+                        NSURL *uploadFileUrl = [NSURL URLWithString:[NSString stringWithFormat:@"file://%@",filePath]];
+                        [HCUploadDataManager sharedManager].maxConcurrentUploader = _maxConcurrentUploadNumber;
+                        [[HCUploadDataManager sharedManager] uploadWithURL:nil parameters:nil fileURL:uploadFileUrl completed:^(NSData *data, NSError *error, BOOL finished) {
+                            //整个操作成功完成，上传成功，删除文件。
+                            if (finished) {
+                                NSLog(@"上传任务已完成---------");
+                                NSLog(@"完成任务路径:%@",filePath);
+                                dispatch_semaphore_signal(_uploadTaskSemaphore);
+                            }
+                        }];
+                        NSLog(@"当前队列任务数:%ld",[HCUploadDataManager sharedManager].currentUploaderCount);
+                    }
+                }
+            }
+        }];
+    }
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//        sleep(3);
+//        NSLog(@"上传成功");
+//        [self setLastUploadTime:[[NSDate new]timeIntervalSince1970]];
+//        NSLog(@"清理本地数据");
+//    });
 }
 
 #pragma mark - 属性读写
@@ -259,6 +340,13 @@ static NSString *const kDataSubPath = @"data";
     _blackNameList = array;
 }
 
+- (void)setMaxConcurrentUploadNumber:(NSUInteger)maxConcurrentUploadNumber {
+    _maxConcurrentUploadNumber = maxConcurrentUploadNumber;
+    @synchronized (_uploadTaskSemaphore) {
+        _uploadTaskSemaphore = dispatch_semaphore_create(_maxConcurrentUploadNumber * 2);
+    }
+}
+
 #pragma mark - 文件操作
 - (void)saveData:(NSData *)data fileName:(NSString *)fileName directoryName:(NSString *)directoryName{
     NSLog(@"保存数据的路径:%@",directoryName);
@@ -269,11 +357,7 @@ static NSString *const kDataSubPath = @"data";
             [fileManager createFileAtPath:fileName contents:data attributes:nil];
         } else {
             //文件存在但不是文件夹，这种情况几乎不会出现。
-            NSError *removeItemError = nil;
-            [fileManager removeItemAtPath:directoryName error:&removeItemError];
-            if (removeItemError) {
-                NSLog(@"文件删除失败 error:%@",removeItemError);
-            }
+            [self deleteFileWithPath:directoryName];
             NSError *createDirError = nil;
             [fileManager createDirectoryAtPath:directoryName withIntermediateDirectories:YES attributes:nil error:&createDirError];
             if (createDirError) {
@@ -293,6 +377,12 @@ static NSString *const kDataSubPath = @"data";
             [fileManager createFileAtPath:fileName contents:data attributes:nil];
         }
     }
+}
+
+- (void)deleteFileWithPath:(NSString *)path {
+    NSError *removeFileError;
+    [[NSFileManager defaultManager] removeItemAtPath:path error:&removeFileError];
+    NSLog(@"删除该路径失败：%@",path);
 }
 
 #pragma mark - 记录

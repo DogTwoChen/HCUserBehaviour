@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E31436A31E6941B200FAB895 /* HCUploadDataOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = E31436A21E6941B200FAB895 /* HCUploadDataOperation.m */; };
+		E31436A61E69593D00FAB895 /* HCUploadDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E31436A51E69593D00FAB895 /* HCUploadDataManager.m */; };
 		E35C2B461E557EAD00A919EA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E35C2B451E557EAD00A919EA /* main.m */; };
 		E35C2B491E557EAD00A919EA /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E35C2B481E557EAD00A919EA /* AppDelegate.m */; };
 		E35C2B4C1E557EAD00A919EA /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E35C2B4B1E557EAD00A919EA /* ViewController.m */; };
@@ -25,6 +27,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E31436A11E6941B200FAB895 /* HCUploadDataOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HCUploadDataOperation.h; sourceTree = "<group>"; };
+		E31436A21E6941B200FAB895 /* HCUploadDataOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HCUploadDataOperation.m; sourceTree = "<group>"; };
+		E31436A41E69593D00FAB895 /* HCUploadDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HCUploadDataManager.h; sourceTree = "<group>"; };
+		E31436A51E69593D00FAB895 /* HCUploadDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HCUploadDataManager.m; sourceTree = "<group>"; };
 		E35C2B411E557EAD00A919EA /* HCUserBehaviourDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HCUserBehaviourDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E35C2B451E557EAD00A919EA /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		E35C2B471E557EAD00A919EA /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -124,6 +130,10 @@
 				E35C2B631E559FE500A919EA /* HCEvent.m */,
 				E35C2B651E559FF100A919EA /* HCUser.h */,
 				E35C2B661E559FF100A919EA /* HCUser.m */,
+				E31436A41E69593D00FAB895 /* HCUploadDataManager.h */,
+				E31436A51E69593D00FAB895 /* HCUploadDataManager.m */,
+				E31436A11E6941B200FAB895 /* HCUploadDataOperation.h */,
+				E31436A21E6941B200FAB895 /* HCUploadDataOperation.m */,
 				E35C2B741E5D7BD700A919EA /* NSObject+HCJSON.h */,
 				E35C2B751E5D7BD700A919EA /* NSObject+HCJSON.m */,
 				E35C2B711E569B2000A919EA /* UIViewController+HCUserBehaviour.h */,
@@ -210,10 +220,12 @@
 				E35C2B641E559FE500A919EA /* HCEvent.m in Sources */,
 				E35C2B761E5D7BD700A919EA /* NSObject+HCJSON.m in Sources */,
 				E35C2B491E557EAD00A919EA /* AppDelegate.m in Sources */,
+				E31436A31E6941B200FAB895 /* HCUploadDataOperation.m in Sources */,
 				E35C2B611E559FD800A919EA /* HCPage.m in Sources */,
 				E35C2B6A1E5697A900A919EA /* HCRegisterViewController.m in Sources */,
 				E35C2B461E557EAD00A919EA /* main.m in Sources */,
 				E35C2B5E1E557EF100A919EA /* HCUserBehaviour.m in Sources */,
+				E31436A61E69593D00FAB895 /* HCUploadDataManager.m in Sources */,
 				E35C2B671E559FF100A919EA /* HCUser.m in Sources */,
 				E35C2B731E569B2000A919EA /* UIViewController+HCUserBehaviour.m in Sources */,
 			);

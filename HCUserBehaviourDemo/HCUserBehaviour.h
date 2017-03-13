@@ -26,7 +26,13 @@
                 .json02
             /2017.2.17
                 .json01
+ 3. 上传数据
+    封装成任务单元，参考 SDWebImage
  
+ //接口增加
+    数据文件的存储路径
+    并发数
+    文件设置成不拷贝
  */
 
 #import <Foundation/Foundation.h>
@@ -38,6 +44,18 @@ typedef NS_ENUM(NSInteger, HCReportPolicy) {
     HCReportPolicyBatch,
     HCReportPolicyBatchInterval
 };
+
+typedef void(^UploadOperationCompletedBlock)(BOOL finished);
+
+@protocol HCUserBehaviourDelegate <NSObject>
+
+@optional
+- (NSString *)userBehaviourDataSavePath;
+
+- (void)userBehaviourUploadWithFilePath:(NSURL *)path
+                         completedBlock:(UploadOperationCompletedBlock)completedBlock;
+
+@end
 
 @interface HCUserBehaviour : NSObject
 
@@ -66,6 +84,10 @@ typedef NS_ENUM(NSInteger, HCReportPolicy) {
 @property (nonatomic, assign) NSTimeInterval reportInterval;
 
 @property (nonatomic, readonly, strong) HCUser *currentUser;
+
+@property (nonatomic, weak) id delegate;
+
+@property (nonatomic, assign) NSUInteger maxConcurrentUploadNumber;
 
 + (id)sharedInstance;
 
