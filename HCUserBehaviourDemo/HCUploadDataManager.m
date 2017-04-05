@@ -53,30 +53,18 @@
     return _uploaderQueue.operationCount;
 }
 
-- (HCUploadDataOperation *)uploadWithURL:(NSURL *)url
-                              parameters:(NSDictionary *)parameters
-                                 fileURL:(NSURL *)fileURL {
-    return [self uploadWithURL:url parameters:parameters fileURL:fileURL completed:nil];
+- (HCUploadDataOperation *)uploadWithFilePath:(NSString *)path {
+    return [self uploadWithFilePath:path completed:nil];
 }
 
-- (HCUploadDataOperation *)uploadWithURL:(NSURL *)url
-                              parameters:(NSDictionary *)parameters
-                                 fileURL:(NSURL *)fileURL
-                               completed:(HCUploadDataCompletedBlock)completedBlock {
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:url];
-    request.HTTPMethod = @"POST";
-    if (parameters) {
-        NSError *error;
-        NSData *parametersData = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:&error];
-        [request setHTTPBody:parametersData];
-    }
-    HCUploadDataOperation *operation = [[HCUploadDataOperation alloc] initWithRequest:request fileURL:fileURL completed:^(NSData *data, NSError *error, BOOL finished) {
-        if (finished && !error) {
-            completedBlock(nil,nil,finished);
-        }
+- (HCUploadDataOperation *)uploadWithFilePath:(NSString *)path
+                                    completed:(HCUploadDataCompletedBlock)completedBlock {
+    HCUploadDataOperation *operation = [[HCUploadDataOperation alloc] initWithFilePath:path completed:^(NSData *data, NSError *error, BOOL finished) {
+        completedBlock(data, error, finished);
     } cancelled:^{
-        
+        completedBlock(nil, nil, NO);
     }];
+    operation.delegate = _delegate;
     [_uploaderQueue addOperation:operation];
     return operation;
 }

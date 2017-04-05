@@ -66,7 +66,7 @@ static NSString *const kDataSubPath = @"data";
     _dateFormatter = [[NSDateFormatter alloc]init];
     _dateFormatter.dateFormat = @"yyyyMMdd";
     
-    [self hc_setJSONBlackNameList:@[@"concurrentQueue",@"dateFormatter",@"blackNameList"]];
+    [self hc_setJSONBlackNameList:@[@"concurrentQueue",@"dateFormatter",@"blackNameList",@"uploadTaskSemaphore"]];
     
     _mutablePages = [NSMutableArray array];
     _mutableUsers = [NSMutableArray array];
@@ -220,6 +220,8 @@ static NSString *const kDataSubPath = @"data";
     //构建 操作单元 执行上传文件的任务，串行并行都可以。参考 SDWebImage
     //获取 /data 下面的日期目录列表
     NSLog(@"开始上传---------");
+    [HCUploadDataManager sharedManager].maxConcurrentUploader = _maxConcurrentUploadNumber;
+    [HCUploadDataManager sharedManager].delegate = self;
     NSString *documentDirectory;
     if (_delegate && [_delegate respondsToSelector:@selector(userBehaviourDataSavePath)]) {
         documentDirectory = [_delegate userBehaviourDataSavePath];
@@ -239,6 +241,7 @@ static NSString *const kDataSubPath = @"data";
         [subDir enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             NSString *path = obj;
             NSString *filePath = [dataPath stringByAppendingPathComponent:path];
+            NSLog(@"uploadData,遍历路径：%@",filePath);
             BOOL isDir;
             [fileManager fileExistsAtPath:filePath isDirectory:&isDir];//看下有没有更方便的方法
             if (isDir) {
@@ -260,41 +263,34 @@ static NSString *const kDataSubPath = @"data";
                     dispatch_semaphore_wait(_uploadTaskSemaphore, DISPATCH_TIME_FOREVER);
                     //默认 队列里 可以追加的任务最大为：最大并发数 * 2 完成一个则
                     if (_delegate && [_delegate respondsToSelector:@selector(userBehaviourUploadWithFilePath:completedBlock:)]) {
-                        NSURL *fileURL = [NSURL URLWithString:filePath];
-                        [_delegate userBehaviourUploadWithFilePath:fileURL completedBlock:^(BOOL finished) {
+                        [_delegate userBehaviourUploadWithFilePath:filePath completedBlock:^(NSData *data, NSError *error, BOOL finished) {
                             if (finished) {
                                 dispatch_semaphore_signal(_uploadTaskSemaphore);
-                                BOOL isExist = [fileManager fileExistsAtPath:fileURL.absoluteString];
-                                if (isExist) {
-                                    [self deleteFileWithPath:fileURL.absoluteString];
-                                }
+                                [[HCUploadDataManager sharedManager] uploadWithFilePath:filePath completed:^(NSData *data, NSError *error, BOOL finished) {
+                                    if (finished) {
+                                        NSLog(@"上传任务成功---------");
+                                        NSLog(@"成功任务路径:%@",filePath);
+                                    } else {
+                                        NSLog(@"上传任务失败---------");
+                                        NSLog(@"失败任务路径:%@",filePath);
+                                        NSLog(@"error：%@",error);
+                                    }
+                                    dispatch_semaphore_signal(_uploadTaskSemaphore);
+                                }];
+                                NSLog(@"当前队列任务数:%ld",[HCUploadDataManager sharedManager].currentUploaderCount);
                             }
                         }];
                     } else {
-                        NSLog(@"添加上传任务到队列---------");
-                        NSLog(@"上传任务路径:%@",filePath);
-                        NSURL *uploadFileUrl = [NSURL URLWithString:[NSString stringWithFormat:@"file://%@",filePath]];
-                        [HCUploadDataManager sharedManager].maxConcurrentUploader = _maxConcurrentUploadNumber;
-                        [[HCUploadDataManager sharedManager] uploadWithURL:nil parameters:nil fileURL:uploadFileUrl completed:^(NSData *data, NSError *error, BOOL finished) {
-                            //整个操作成功完成，上传成功，删除文件。
-                            if (finished) {
-                                NSLog(@"上传任务已完成---------");
-                                NSLog(@"完成任务路径:%@",filePath);
-                                dispatch_semaphore_signal(_uploadTaskSemaphore);
-                            }
-                        }];
-                        NSLog(@"当前队列任务数:%ld",[HCUploadDataManager sharedManager].currentUploaderCount);
+                        NSLog(@"需要设置代理，自行提供上传接口。");
                     }
+                } else {
+                    //文件不是 json 就不是存储的数据，可能是 .DS_Store 等其它的东西。
+                    [self deleteFileWithPath:filePath];
                 }
             }
         }];
     }
-//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//        sleep(3);
-//        NSLog(@"上传成功");
-//        [self setLastUploadTime:[[NSDate new]timeIntervalSince1970]];
-//        NSLog(@"清理本地数据");
-//    });
+    [self setLastUploadTime:[[NSDate new]timeIntervalSince1970]];
 }
 
 #pragma mark - 属性读写
@@ -382,7 +378,11 @@ static NSString *const kDataSubPath = @"data";
 - (void)deleteFileWithPath:(NSString *)path {
     NSError *removeFileError;
     [[NSFileManager defaultManager] removeItemAtPath:path error:&removeFileError];
-    NSLog(@"删除该路径失败：%@",path);
+    if (removeFileError) {
+        NSLog(@"删除该路径失败：%@ #%@#",path,removeFileError);
+    } else {
+        NSLog(@"删除该路径成功：%@",path);
+    }
 }
 
 #pragma mark - 记录
@@ -435,7 +435,7 @@ static NSString *const kDataSubPath = @"data";
     [[self currentPage] event:eventId attributes:attributes];
 }
 
-- (void)userlogInWithName:(NSString *)userName channel:(NSString *)channel {
+- (void)userSignInWithName:(NSString *)userName channel:(NSString *)channel {
     @synchronized (_mutableUsers) {
         _currentUser = [[HCUser alloc]initWithName:userName channel:channel];
         [_currentUser logIn];
@@ -444,7 +444,7 @@ static NSString *const kDataSubPath = @"data";
     }
 }
 
-- (void)userlogOut {
+- (void)userSignOut {
     @synchronized (_mutableUsers) {
         NSLog(@"用户退出,用户:%@",_currentUser);
         [_currentUser logOut];

@@ -15,15 +15,13 @@
 
 @property (readonly, nonatomic) NSUInteger currentUploaderCount;
 
+@property (weak, nonatomic) id delegate;
+
 + (HCUploadDataManager *)sharedManager;
 
-- (HCUploadDataOperation *)uploadWithURL:(NSURL *)url
-                              parameters:(NSDictionary *)parameters
-                                 fileURL:(NSURL *)fileURL;
+- (HCUploadDataOperation *)uploadWithFilePath:(NSString *)path;
 
-- (HCUploadDataOperation *)uploadWithURL:(NSURL *)url
-                              parameters:(NSDictionary *)parameters
-                                 fileURL:(NSURL *)fileURL
+- (HCUploadDataOperation *)uploadWithFilePath:(NSString *)path
                                completed:(HCUploadDataCompletedBlock)completedBlock;
 
 - (void)setSuspended:(BOOL)suspended;

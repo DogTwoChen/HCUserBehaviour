@@ -7,7 +7,10 @@
 //
 
 #import "HCUploadDataOperation.h"
+#import "HCUserBehaviour.h"
 #import <UIKit/UIKit.h>
+
+static NSString *const userBehaviourUploadErrorDomain = @"com.haichuan.userBehaviour.HCUploadDataOperation";
 
 @interface HCUploadDataOperation ()
 
@@ -32,13 +35,11 @@
 @synthesize finished = _finished;
 @synthesize executing = _executing;
 
-- (instancetype)initWithRequest:(NSURLRequest *)request
-                        fileURL:(NSURL *)fileURL
-                      completed:(HCUploadDataCompletedBlock)completedBlock
-                      cancelled:(HCUploadDataCancelBlock)cancelledBlock {
+- (instancetype)initWithFilePath:(NSString *)filePath
+                       completed:(HCUploadDataCompletedBlock)completedBlock
+                       cancelled:(HCUploadDataCancelBlock)cancelledBlock {
     if ((self = [super init])) {
-        _request = request;
-        _fileURL = fileURL;
+        _filePath = filePath;
         _completedBlock = [completedBlock copy];
         _cancelBlock = [cancelledBlock copy];
         _finished = NO;
@@ -70,53 +71,33 @@
             }];
         }
 #endif
-        /*
-        if (!self.ownedSession) {
-            NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
-            sessionConfig.timeoutIntervalForRequest = 15;
-            self.ownedSession = [NSURLSession sessionWithConfiguration:sessionConfig
-                                                              delegate:nil
-                                                         delegateQueue:nil];
-        }
-        self.uploadTask = [self.ownedSession uploadTaskWithRequest:_request fromFile:_fileURL completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            //判断 error
-            //判断业务逻辑错误
-            //上传成功后，进行 标记文件已上传/删除的操作
-            NSLog(@"上传成功 fileURL:%@",[_fileURL absoluteString]);
-            
-            NSError *removeFileError = nil;
-            NSFileManager *fileManager = [NSFileManager defaultManager];
-            [fileManager removeItemAtURL:_fileURL error:&removeFileError];
-            if (removeFileError) {
-                NSLog(@"removeFIleError:%@",removeFileError);
-            }
-            
-            _completedBlock(data ,error,YES);
-        }];
-        */
-        self.executing = YES;
-        sleep(2);
 
-        NSError *removeFileError = nil;
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        [fileManager removeItemAtURL:_fileURL error:&removeFileError];
-        if (removeFileError) {
-            NSLog(@"removeFileError:%@",removeFileError);
+        __weak typeof(self) weak_self = self;
+        if (_delegate && [_delegate respondsToSelector:@selector(userBehaviourUploadWithFilePath:completedBlock:)]) {
+            [_delegate userBehaviourUploadWithFilePath:_filePath completedBlock:^(NSData *data, NSError *error, BOOL finished) {
+                __strong typeof(self) strong_self = weak_self;
+                if (strong_self) {
+                    if (finished) {
+                        //上传成功后，删除文件。
+                        NSError *removeFileError = nil;
+                        NSFileManager *fileManager = [NSFileManager defaultManager];
+                        [fileManager removeItemAtPath:_filePath error:&removeFileError];
+                        if (removeFileError) {
+                            //有可能代理中执行了删除
+                            NSLog(@"removeFileError:%@",removeFileError);
+                        }
+                        self.finished = YES;
+                        _completedBlock(data ,removeFileError,finished);
+                    } else {
+                        self.finished = YES;
+                        _completedBlock(data ,error,finished);
+                    }
+                    
+                }
+            }];
+            self.executing = YES;
         }
-        
-        self.finished = YES;
-        _completedBlock(nil ,nil,YES);
     }
-    /*
-    [self.uploadTask resume];
-    if (self.uploadTask) {
-        
-    } else {
-        if (self.completedBlock) {
-            self.completedBlock(nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}], YES);
-        }
-    }
-     */
 }
 
 - (void)reset {

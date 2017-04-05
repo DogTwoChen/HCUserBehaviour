@@ -19,14 +19,11 @@ typedef NS_ENUM(NSUInteger, HCURLSessionTask){
 
 @interface HCUploadDataOperation : NSOperation
 
-@property (strong, nonatomic, readonly) NSURLRequest *request;
+@property (weak, nonatomic) id delegate;
 
-@property (strong, nonatomic, readonly) NSURLSessionUploadTask *uploadTask;
+@property (copy, nonatomic) NSString *filePath;
 
-@property (strong, nonatomic, readonly) NSURL *fileURL;
-
-- (instancetype)initWithRequest:(NSURLRequest *)request
-                        fileURL:(NSURL *)fileURL
+- (instancetype)initWithFilePath:(NSString *)filePath
                       completed:(HCUploadDataCompletedBlock)completedBlock
                       cancelled:(HCUploadDataCancelBlock)cancelledBlock;
 

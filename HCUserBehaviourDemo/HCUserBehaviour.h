@@ -36,24 +36,43 @@
  */
 
 #import <Foundation/Foundation.h>
-
+#import "HCUploadDataOperation.h"
 #import "HCPage.h"
 #import "HCUser.h"
 
+
+/**
+ 上传用户行为数据
+
+ - HCReportPolicyBatch: 每次启动时上传
+ - HCReportPolicyBatchInterval: 时间间隔上传
+ */
 typedef NS_ENUM(NSInteger, HCReportPolicy) {
     HCReportPolicyBatch,
     HCReportPolicyBatchInterval
 };
 
-typedef void(^UploadOperationCompletedBlock)(BOOL finished);
-
 @protocol HCUserBehaviourDelegate <NSObject>
 
 @optional
+
+/**
+ 用户行为数据的保存路径
+
+ @return 返回绝对路径
+ */
 - (NSString *)userBehaviourDataSavePath;
 
-- (void)userBehaviourUploadWithFilePath:(NSURL *)path
-                         completedBlock:(UploadOperationCompletedBlock)completedBlock;
+@required
+
+/**
+ 提供保存的用户行为数据路径，开发者提供上传的接口。
+
+ @param path 数据路径
+ @param completedBlock 上传成功一定要回调，因为还有删除旧数据的处理。
+ */
+- (void)userBehaviourUploadWithFilePath:(NSString *)path
+                         completedBlock:(HCUploadDataCompletedBlock)completedBlock;
 
 @end
 
@@ -85,7 +104,7 @@ typedef void(^UploadOperationCompletedBlock)(BOOL finished);
 
 @property (nonatomic, readonly, strong) HCUser *currentUser;
 
-@property (nonatomic, weak) id delegate;
+@property (nonatomic, weak) id delegate; //实现这个代理，用来上传文件。
 
 @property (nonatomic, assign) NSUInteger maxConcurrentUploadNumber;
 
@@ -101,9 +120,9 @@ typedef void(^UploadOperationCompletedBlock)(BOOL finished);
 
 - (void)event:(NSString *)eventId attributes:(NSDictionary *)attributes; //字符串 键值对，看下友盟有没有要求。
 
-- (void)userlogInWithName:(NSString *)userName channel:(NSString *)channel;
+- (void)userSignInWithName:(NSString *)userName channel:(NSString *)channel;
 
-- (void)userlogOut;
+- (void)userSignOut;
 
 - (NSArray *)getBlackPageNameList;
 
