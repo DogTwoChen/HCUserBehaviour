@@ -29,7 +29,8 @@ typedef void(^HCUploadDataCancelBlock)();
  提供保存的用户行为数据路径，开发者提供上传的接口。
  
  @param path 数据路径
- @param completedBlock 上传成功一定要回调，因为还有删除旧数据的处理。
+ @param completedBlock 上传成功一定要 completedBlock 回调，因为还有删除旧数据的处理。
+ 或者 通过 path 获取到指定的 NSOperation，调 notifyOperationThatUploadStateWith 方法。
  */
 - (void)userBehaviourUploadWithFilePath:(NSString *)path
                          completedBlock:(HCUploadDataCompletedBlock)completedBlock;

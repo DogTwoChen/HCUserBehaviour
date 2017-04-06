@@ -7,10 +7,16 @@
 //
 
 #import "HCUploadDataManager.h"
+#import "HCUploadDataOperation.h"
 
 @interface HCUploadDataManager ()
+{
+    NSMutableDictionary *_operationMutableDict;
+}
 
 @property (strong, nonatomic) NSOperationQueue *uploaderQueue;
+
+@property (copy, nonatomic, readwrite) NSDictionary *operationDict;
 
 @end
 
@@ -32,6 +38,7 @@
         _uploaderQueue = [NSOperationQueue new];
         _uploaderQueue.maxConcurrentOperationCount = 3;
         _uploaderQueue.name = @"com.hcuserbehaviour.operationQueue";
+        _operationMutableDict = [NSMutableDictionary new];
     }
     return self;
 }
@@ -59,15 +66,37 @@
 
 - (HCUploadDataOperation *)uploadWithFilePath:(NSString *)path
                                     completed:(HCUploadDataCompletedBlock)completedBlock {
-    HCUploadDataOperation *operation = [[HCUploadDataOperation alloc] initWithFilePath:path
-                                                                             completed:^(NSData *data, NSError *error, BOOL finished) {
+    HCUploadDataOperation *oldOperation = [self getUploadDataOperationWith:path];
+    if (oldOperation) {
+        return nil;
+    }
+    __weak typeof(self) weakSelf = self;
+    HCUploadDataOperation *operation = [[HCUploadDataOperation alloc] initWithFilePath:path completed:^(NSData *data, NSError *error, BOOL finished) {
         completedBlock(data, error, finished);
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (strongSelf) {
+            [self removeUploadDataOperationWith:path];
+        }
     } cancelled:^{
         completedBlock(nil, nil, NO);
     }];
     operation.delegate = _delegate;
     [_uploaderQueue addOperation:operation];
+    
+    [_operationMutableDict setObject:operation forKey:path];//path算md5 做 key
     return operation;
+}
+
+- (NSDictionary *)operationDict {
+    return [_operationMutableDict copy];
+}
+
+- (HCUploadDataOperation *)getUploadDataOperationWith:(NSString *)key {
+    return [[self operationDict] objectForKey:key];
+}
+
+- (void)removeUploadDataOperationWith:(NSString *)key {
+    return [_operationMutableDict removeObjectForKey:key];
 }
 
 - (void)setSuspended:(BOOL)suspended {

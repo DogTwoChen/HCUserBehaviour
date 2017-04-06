@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "HCUploadDataOperation.h"
+#import "HCUserBehaviourProtocol.h"
+@class HCUploadDataOperation;
 
 @interface HCUploadDataManager : NSObject
 
@@ -16,6 +17,8 @@
 @property (readonly, nonatomic) NSUInteger currentUploaderCount;
 
 @property (weak, nonatomic) id <HCUserBehaviourProtocol> delegate;
+
+@property (copy, nonatomic, readonly) NSDictionary *operationDict;
 
 + (HCUploadDataManager *)sharedManager;
 
@@ -27,5 +30,7 @@
 - (void)setSuspended:(BOOL)suspended;
 
 - (void)cancelAllDownloads;
+
+- (HCUploadDataOperation *)getUploadDataOperationWith:(NSString *)key;
 
 @end

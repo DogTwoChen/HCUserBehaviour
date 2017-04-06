@@ -30,6 +30,8 @@
 		E3EA106D1E94E06000BF896B /* HCPageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E3EA106C1E94E06000BF896B /* HCPageTests.m */; };
 		E3EA106F1E94E60200BF896B /* HCJSONTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E3EA106E1E94E60200BF896B /* HCJSONTests.m */; };
 		E3EA10741E95DCD800BF896B /* HCUploadDataOperationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E3EA10731E95DCD800BF896B /* HCUploadDataOperationTests.m */; };
+		E3EA10771E9644B400BF896B /* HCUploadDataManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E3EA10761E9644B400BF896B /* HCUploadDataManagerTests.m */; };
+		E3EA107A1E96467D00BF896B /* HCTestHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = E3EA10791E96467D00BF896B /* HCTestHelper.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,6 +85,9 @@
 		E3EA106E1E94E60200BF896B /* HCJSONTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HCJSONTests.m; sourceTree = "<group>"; };
 		E3EA10731E95DCD800BF896B /* HCUploadDataOperationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HCUploadDataOperationTests.m; sourceTree = "<group>"; };
 		E3EA10751E95DFE700BF896B /* HCUserBehaviourProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HCUserBehaviourProtocol.h; sourceTree = "<group>"; };
+		E3EA10761E9644B400BF896B /* HCUploadDataManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HCUploadDataManagerTests.m; sourceTree = "<group>"; };
+		E3EA10781E96467D00BF896B /* HCTestHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HCTestHelper.h; sourceTree = "<group>"; };
+		E3EA10791E96467D00BF896B /* HCTestHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HCTestHelper.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -180,11 +185,14 @@
 			isa = PBXGroup;
 			children = (
 				E3EA10611E94DB4100BF896B /* Info.plist */,
+				E3EA10781E96467D00BF896B /* HCTestHelper.h */,
+				E3EA10791E96467D00BF896B /* HCTestHelper.m */,
 				E3EA10571E94D29900BF896B /* HCEventTests.m */,
 				E3EA10681E94DC4B00BF896B /* HCUserTests.m */,
 				E3EA106C1E94E06000BF896B /* HCPageTests.m */,
 				E3EA106E1E94E60200BF896B /* HCJSONTests.m */,
 				E3EA10731E95DCD800BF896B /* HCUploadDataOperationTests.m */,
+				E3EA10761E9644B400BF896B /* HCUploadDataManagerTests.m */,
 			);
 			path = HCUserBehaviourDemoTests;
 			sourceTree = "<group>";
@@ -316,9 +324,11 @@
 			files = (
 				E3EA106F1E94E60200BF896B /* HCJSONTests.m in Sources */,
 				E3EA10741E95DCD800BF896B /* HCUploadDataOperationTests.m in Sources */,
+				E3EA107A1E96467D00BF896B /* HCTestHelper.m in Sources */,
 				E3EA10691E94DC4B00BF896B /* HCUserTests.m in Sources */,
 				E3EA10671E94DB8100BF896B /* HCEventTests.m in Sources */,
 				E3EA106D1E94E06000BF896B /* HCPageTests.m in Sources */,
+				E3EA10771E9644B400BF896B /* HCUploadDataManagerTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

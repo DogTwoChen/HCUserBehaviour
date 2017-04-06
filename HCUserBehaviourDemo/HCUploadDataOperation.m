@@ -17,6 +17,8 @@ static NSString *const userBehaviourUploadErrorDomain = @"com.haichuan.userBehav
 @property (copy, nonatomic) HCUploadDataCompletedBlock completedBlock;
 @property (copy, nonatomic) HCUploadDataCancelBlock cancelBlock;
 
+@property (copy, nonatomic) HCUploadDataCompletedBlock operationCompletedBlock;
+
 @property (assign, nonatomic, getter=isFinished) BOOL finished;
 @property (assign, nonatomic, getter=isExecuting) BOOL executing;
 
@@ -42,6 +44,28 @@ static NSString *const userBehaviourUploadErrorDomain = @"com.haichuan.userBehav
         _cancelBlock = [cancelledBlock copy];
         _finished = NO;
         _executing = NO;
+        
+        __weak typeof(self) weak_self = self;
+        _operationCompletedBlock = ^(NSData *data, NSError *error, BOOL finished) {
+            __strong typeof(self) strong_self = weak_self;
+            if (strong_self) {
+                if (finished) {
+                    //上传成功后，删除文件。
+                    NSError *removeFileError = nil;
+                    NSFileManager *fileManager = [NSFileManager defaultManager];
+                    [fileManager removeItemAtPath:strong_self->_filePath error:&removeFileError];
+                    if (removeFileError) {
+                        //有可能代理中执行了删除
+                        NSLog(@"removeFileError:%@",removeFileError);
+                    }
+                    strong_self.finished = YES;
+                    strong_self.completedBlock(data ,removeFileError,finished);
+                } else {
+                    strong_self.finished = YES;
+                    strong_self.completedBlock(data ,error,finished);
+                }
+            }
+        };
     }
     return self;
 }
@@ -49,6 +73,10 @@ static NSString *const userBehaviourUploadErrorDomain = @"com.haichuan.userBehav
 - (void)main {
     @synchronized (self) {
         if (self.isCancelled) {
+            self.finished = YES;
+            [self reset];
+            return;
+        } else if ( !_filePath || [_filePath isEqualToString:@""]) {
             self.finished = YES;
             [self reset];
             return;
@@ -69,31 +97,11 @@ static NSString *const userBehaviourUploadErrorDomain = @"com.haichuan.userBehav
             }];
         }
 #endif
-
-        __weak typeof(self) weak_self = self;
         if (_delegate && [_delegate respondsToSelector:@selector(userBehaviourUploadWithFilePath:completedBlock:)]) {
-            [_delegate userBehaviourUploadWithFilePath:_filePath completedBlock:^(NSData *data, NSError *error, BOOL finished) {
-                __strong typeof(self) strong_self = weak_self;
-                if (strong_self) {
-                    if (finished) {
-                        //上传成功后，删除文件。
-                        NSError *removeFileError = nil;
-                        NSFileManager *fileManager = [NSFileManager defaultManager];
-                        [fileManager removeItemAtPath:_filePath error:&removeFileError];
-                        if (removeFileError) {
-                            //有可能代理中执行了删除
-                            NSLog(@"removeFileError:%@",removeFileError);
-                        }
-                        self.finished = YES;
-                        _completedBlock(data ,removeFileError,finished);
-                    } else {
-                        self.finished = YES;
-                        _completedBlock(data ,error,finished);
-                    }
-                    
-                }
-            }];
+            [_delegate userBehaviourUploadWithFilePath:_filePath completedBlock:_operationCompletedBlock];
             self.executing = YES;
+        } else {
+            //自己实现上传接口
         }
     }
 }
@@ -116,6 +124,16 @@ static NSString *const userBehaviourUploadErrorDomain = @"com.haichuan.userBehav
     }
     
     [self reset];
+}
+
+- (void)notifyOperationThatUploadStateWith:(NSData *)data
+                                     error:(NSError *)error
+                                isFinished:(BOOL)finished {
+    if (_operationCompletedBlock) {
+        _operationCompletedBlock(data, error, finished);
+    } else {
+        [self cancel];
+    }
 }
 
 @end

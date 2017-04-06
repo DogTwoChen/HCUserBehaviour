@@ -19,4 +19,6 @@
                       completed:(HCUploadDataCompletedBlock)completedBlock
                       cancelled:(HCUploadDataCancelBlock)cancelledBlock;
 
+- (void)notifyOperationThatUploadStateWith:(NSData *)data error:(NSError *)error isFinished:(BOOL)finished;
+
 @end
