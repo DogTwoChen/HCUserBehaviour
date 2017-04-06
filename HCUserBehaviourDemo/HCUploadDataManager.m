@@ -59,7 +59,8 @@
 
 - (HCUploadDataOperation *)uploadWithFilePath:(NSString *)path
                                     completed:(HCUploadDataCompletedBlock)completedBlock {
-    HCUploadDataOperation *operation = [[HCUploadDataOperation alloc] initWithFilePath:path completed:^(NSData *data, NSError *error, BOOL finished) {
+    HCUploadDataOperation *operation = [[HCUploadDataOperation alloc] initWithFilePath:path
+                                                                             completed:^(NSData *data, NSError *error, BOOL finished) {
         completedBlock(data, error, finished);
     } cancelled:^{
         completedBlock(nil, nil, NO);

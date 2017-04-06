@@ -20,9 +20,7 @@ static NSString *const userBehaviourUploadErrorDomain = @"com.haichuan.userBehav
 @property (assign, nonatomic, getter=isFinished) BOOL finished;
 @property (assign, nonatomic, getter=isExecuting) BOOL executing;
 
-@property (strong, nonatomic) NSURLSession *ownedSession;
-
-@property (strong, nonatomic, readwrite) NSURLSessionUploadTask *uploadTask;
+@property (copy, nonatomic, readwrite) NSString *filePath;
 
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
@@ -103,11 +101,6 @@ static NSString *const userBehaviourUploadErrorDomain = @"com.haichuan.userBehav
 - (void)reset {
     self.completedBlock = nil;
     self.cancelBlock = nil;
-    self.uploadTask = nil;
-    if (self.ownedSession) {
-        [self.ownedSession invalidateAndCancel];
-        self.ownedSession = nil;
-    }
 }
 
 - (void)cancel {
@@ -115,14 +108,11 @@ static NSString *const userBehaviourUploadErrorDomain = @"com.haichuan.userBehav
     if (self.cancelBlock) {
         self.cancelBlock();
     }
-    if (self.uploadTask) {
-        [self.uploadTask cancel];
-        if (self.isExecuting) {
-            self.executing = NO;
-        }
-        if (!self.isFinished) {
-            self.finished = YES;
-        }
+    if (self.isExecuting) {
+        self.executing = NO;
+    }
+    if (!self.isFinished) {
+        self.finished = YES;
     }
     
     [self reset];

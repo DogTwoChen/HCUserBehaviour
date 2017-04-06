@@ -22,7 +22,7 @@
 
 - (instancetype)initWithName:(NSString *)name
                      channel:(NSString *)channel;
-- (void)logIn;
-- (void)logOut;
+- (void)signIn;
+- (void)signOut;
 
 @end

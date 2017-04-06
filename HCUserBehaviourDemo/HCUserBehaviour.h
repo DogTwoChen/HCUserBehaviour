@@ -47,34 +47,13 @@
  - HCReportPolicyBatch: 每次启动时上传
  - HCReportPolicyBatchInterval: 时间间隔上传
  */
+
+#import "HCUserBehaviourProtocol.h"
+
 typedef NS_ENUM(NSInteger, HCReportPolicy) {
     HCReportPolicyBatch,
     HCReportPolicyBatchInterval
 };
-
-@protocol HCUserBehaviourDelegate <NSObject>
-
-@optional
-
-/**
- 用户行为数据的保存路径
-
- @return 返回绝对路径
- */
-- (NSString *)userBehaviourDataSavePath;
-
-@required
-
-/**
- 提供保存的用户行为数据路径，开发者提供上传的接口。
-
- @param path 数据路径
- @param completedBlock 上传成功一定要回调，因为还有删除旧数据的处理。
- */
-- (void)userBehaviourUploadWithFilePath:(NSString *)path
-                         completedBlock:(HCUploadDataCompletedBlock)completedBlock;
-
-@end
 
 @interface HCUserBehaviour : NSObject
 
@@ -104,11 +83,11 @@ typedef NS_ENUM(NSInteger, HCReportPolicy) {
 
 @property (nonatomic, readonly, strong) HCUser *currentUser;
 
-@property (nonatomic, weak) id delegate; //实现这个代理，用来上传文件。
+@property (nonatomic, weak) id <HCUserBehaviourProtocol> delegate; //实现这个代理，用来上传文件。
 
 @property (nonatomic, assign) NSUInteger maxConcurrentUploadNumber;
 
-+ (id)sharedInstance;
++ (HCUserBehaviour *)sharedInstance;
 
 - (void)reportPolicy:(HCReportPolicy)reportPolicy;
 

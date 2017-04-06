@@ -9,11 +9,19 @@
 #import "AppDelegate.h"
 #import "HCUserBehaviour.h"
 
-@interface AppDelegate ()
+@interface AppDelegate () <HCUserBehaviourProtocol>
 
 @end
 
 @implementation AppDelegate
+
+#pragma mark - HCUserBehaviourDelegate
+- (void)userBehaviourUploadWithFilePath:(NSString *)path
+                         completedBlock:(HCUploadDataCompletedBlock)completedBlock {
+    sleep(2);
+    NSLog(@"AppDelegate completedBlock:%@",completedBlock);
+    completedBlock(nil,nil,YES);
+}
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -22,6 +30,7 @@
     
     [[HCUserBehaviour sharedInstance] reportPolicy:HCReportPolicyBatch];
     [[HCUserBehaviour sharedInstance] setBlackPageNameList:@[@"UINavigationController"]];
+    [HCUserBehaviour sharedInstance].delegate = self;
     
     return YES;
 }

@@ -15,7 +15,7 @@
 
 @property (readonly, nonatomic) NSUInteger currentUploaderCount;
 
-@property (weak, nonatomic) id delegate;
+@property (weak, nonatomic) id <HCUserBehaviourProtocol> delegate;
 
 + (HCUploadDataManager *)sharedManager;
 

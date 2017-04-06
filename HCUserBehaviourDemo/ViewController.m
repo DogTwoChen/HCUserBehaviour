@@ -12,7 +12,6 @@
 #import "HCGoodsDetailViewController.h"
 #import "HCUploadDataManager.h"
 
-
 @interface ViewController () <UITableViewDelegate,UITableViewDataSource>
 
 @end
@@ -22,16 +21,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-//    NSURL *fileURL = [NSURL URLWithString:@"/Users/lhc/Desktop/testJson.json"];
-////    NSURL *serverURL = [NSURL URLWithString:@"http://198.1.244.44:8082/pweb/uploadFileTest.do"];
-//    NSURL *serverURL = [NSURL URLWithString:@"http://192.168.1.116:8080/SpringMVC0002/spring/byebye.action"];
-//    [[HCUploadDataManager sharedManager] uploadWithURL:serverURL parameters:@{@"UploadFile":@"lhc"} fileURL:fileURL];
-    // Do any additional setup after loading the view, typically from a nib.
-//    
-//    for (int i = 0; i < 100; i++) {
-//        [[HCOperationManager shared] addTask:[NSString stringWithFormat:@"%d",i]];
-//    }
-
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"cellID"];
 }
 

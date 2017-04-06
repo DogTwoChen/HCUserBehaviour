@@ -42,17 +42,17 @@
 }
 
 - (void)login {
-    [[HCUserBehaviour sharedInstance] userlogInWithName:@"mike" channel:@"General"];
+    [[HCUserBehaviour sharedInstance] userSignInWithName:@"mike" channel:@"General"];
 //    [[HCUserBehaviour sharedInstance] event:@"Event&UserLogIn"
 //                                 attributes:@{@"username":@"mike",@"password":@"123abc"}];
 }
 
 - (void)wechatLogin {
-    [[HCUserBehaviour sharedInstance] userlogInWithName:@"mike_wechat" channel:@"WeChat"];
+    [[HCUserBehaviour sharedInstance] userSignInWithName:@"mike_wechat" channel:@"WeChat"];
 }
 
 - (void)weBoLogin {
-    [[HCUserBehaviour sharedInstance] userlogInWithName:@"mike_webo" channel:@"WeBo"];
+    [[HCUserBehaviour sharedInstance] userSignInWithName:@"mike_webo" channel:@"WeBo"];
 }
 
 - (void)didReceiveMemoryWarning {

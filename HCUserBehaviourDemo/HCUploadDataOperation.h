@@ -7,21 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-
-typedef void(^HCUploadDataCompletedBlock)(NSData *data, NSError *error, BOOL finished);
-
-typedef void(^HCUploadDataCancelBlock)();
-
-typedef NS_ENUM(NSUInteger, HCURLSessionTask){
-    HCURLSessionTaskData,
-    HCURLSessionTaskUpload
-};
+#import "HCUserBehaviourProtocol.h"
 
 @interface HCUploadDataOperation : NSOperation
 
-@property (weak, nonatomic) id delegate;
+@property (weak, nonatomic) id <HCUserBehaviourProtocol> delegate;
 
-@property (copy, nonatomic) NSString *filePath;
+@property (copy, nonatomic, readonly) NSString *filePath;
 
 - (instancetype)initWithFilePath:(NSString *)filePath
                       completed:(HCUploadDataCompletedBlock)completedBlock

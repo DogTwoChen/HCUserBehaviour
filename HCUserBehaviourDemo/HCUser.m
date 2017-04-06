@@ -20,11 +20,11 @@
     return self;
 }
 
-- (void)logIn {
+- (void)signIn {
     _beginTime = [[NSDate new] timeIntervalSince1970];
 }
 
-- (void)logOut {
+- (void)signOut {
     _endTime = [[NSDate new] timeIntervalSince1970];
     if (_beginTime > 0 && _endTime > 0) {
         _stayTime = _endTime - _beginTime;

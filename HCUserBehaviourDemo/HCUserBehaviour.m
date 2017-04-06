@@ -41,7 +41,7 @@ static NSString *const kDataSubPath = @"data";
 
 #pragma mark - 初始化
 
-+ (id)sharedInstance {
++ (HCUserBehaviour *)sharedInstance {
     static id instance;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -66,7 +66,8 @@ static NSString *const kDataSubPath = @"data";
     _dateFormatter = [[NSDateFormatter alloc]init];
     _dateFormatter.dateFormat = @"yyyyMMdd";
     
-    [self hc_setJSONBlackNameList:@[@"concurrentQueue",@"dateFormatter",@"blackNameList",@"uploadTaskSemaphore"]];
+    [self hc_setJSONBlackNameList:@[@"concurrentQueue",@"dateFormatter",@"blackNameList",@"uploadTaskSemaphore",
+                                    @"delegate",@"reportPolicy",@"reportInterval",@"maxConcurrentUploadNumber"]];
     
     _mutablePages = [NSMutableArray array];
     _mutableUsers = [NSMutableArray array];
@@ -221,7 +222,7 @@ static NSString *const kDataSubPath = @"data";
     //获取 /data 下面的日期目录列表
     NSLog(@"开始上传---------");
     [HCUploadDataManager sharedManager].maxConcurrentUploader = _maxConcurrentUploadNumber;
-    [HCUploadDataManager sharedManager].delegate = self;
+    [HCUploadDataManager sharedManager].delegate = _delegate;
     NSString *documentDirectory;
     if (_delegate && [_delegate respondsToSelector:@selector(userBehaviourDataSavePath)]) {
         documentDirectory = [_delegate userBehaviourDataSavePath];
@@ -241,7 +242,7 @@ static NSString *const kDataSubPath = @"data";
         [subDir enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             NSString *path = obj;
             NSString *filePath = [dataPath stringByAppendingPathComponent:path];
-            NSLog(@"uploadData,遍历路径：%@",filePath);
+            NSLog(@"uploadData,遍历路径：%@", [filePath stringByReplacingOccurrencesOfString:documentDirectory withString:@""]);
             BOOL isDir;
             [fileManager fileExistsAtPath:filePath isDirectory:&isDir];//看下有没有更方便的方法
             if (isDir) {
@@ -438,7 +439,7 @@ static NSString *const kDataSubPath = @"data";
 - (void)userSignInWithName:(NSString *)userName channel:(NSString *)channel {
     @synchronized (_mutableUsers) {
         _currentUser = [[HCUser alloc]initWithName:userName channel:channel];
-        [_currentUser logIn];
+        [_currentUser signIn];
         [_mutableUsers addObject:_currentUser];
         NSLog(@"用户登录，用户:%@, 登录渠道:%@",_currentUser,channel);
     }
@@ -447,7 +448,7 @@ static NSString *const kDataSubPath = @"data";
 - (void)userSignOut {
     @synchronized (_mutableUsers) {
         NSLog(@"用户退出,用户:%@",_currentUser);
-        [_currentUser logOut];
+        [_currentUser signOut];
         _currentUser = nil;
         [_mutableUsers removeObject:_currentUser];
     }

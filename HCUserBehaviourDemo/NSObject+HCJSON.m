@@ -38,27 +38,12 @@ static char kBlackNameListKey;
             continue;
         }
         [propertyNames addObject:p_name];
-        
-//        const char *attributes = property_getAttributes(property);
-//        NSString *attributesStr = [NSString stringWithUTF8String:attributes];
-//        NSLog(@"attributeStr:%@",attributesStr);
-        /*
-         T@"NSString",R,C,N,V_name
-         T@"NSString",R,C,N,V_userName
-         Td,N,V_beginTime
-         Td,N,V_endTime
-         Td,R,N,V_stayTime
-         T@"NSArray",R,C,N
-         
-         TQ,R
-         T#,R
-         */
     }
     free(propertys);
-    return propertyNames;//0x6040001735d0
+    return propertyNames;
 }
 
-- (NSDictionary *)propertyValues:(NSArray *)propertys {//0x6040001735d0
+- (NSDictionary *)propertyValues:(NSArray *)propertys {
     NSMutableDictionary *propertyValuesDic = [[NSMutableDictionary alloc]init];
     for (NSString *propertyName in propertys) {
         SEL getterSEL = NSSelectorFromString(propertyName);
@@ -70,9 +55,6 @@ static char kBlackNameListKey;
             [invocation setTarget:self];
             [invocation invoke];
             __weak NSObject *valueObj = nil;
-            //返回值超出作用域会被销毁，之前的 DateFormater 应该就是这被干掉的
-            //思考下 为什么 __weak 就没问题，__strong 就有问题，autoreleaepool pop release 崩溃。已经被 dealloc 了
-            //valueObj 超出作用域会被 dealloc ，该变量变成野指针。查下 StackOverFlow
             const char *returnType = [[invocation methodSignature] methodReturnType];
             
             NSString *returnTypeStr = [NSString stringWithUTF8String:returnType];
@@ -135,7 +117,7 @@ static char kBlackNameListKey;
     return propertyValuesDic;
 }
 
-- (NSArray *)hc_getJSONBlackNameList {//0x6030000642a0
+- (NSArray *)hc_getJSONBlackNameList {
     NSArray *array = objc_getAssociatedObject(self, &kBlackNameListKey);
     return array;
 }
