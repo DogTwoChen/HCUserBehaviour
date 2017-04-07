@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "HCUserBehaviourProtocol.h"
+
 @class HCUploadDataOperation;
 
 @interface HCUploadDataManager : NSObject
@@ -15,8 +16,6 @@
 @property (assign, nonatomic) NSInteger maxConcurrentUploader;
 
 @property (readonly, nonatomic) NSUInteger currentUploaderCount;
-
-@property (weak, nonatomic) id <HCUserBehaviourProtocol> delegate;
 
 @property (copy, nonatomic, readonly) NSDictionary *operationDict;
 

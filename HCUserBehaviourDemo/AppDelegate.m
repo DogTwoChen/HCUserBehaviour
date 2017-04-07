@@ -9,28 +9,20 @@
 #import "AppDelegate.h"
 #import "HCUserBehaviour.h"
 
-@interface AppDelegate () <HCUserBehaviourProtocol>
+@interface AppDelegate ()
 
 @end
 
 @implementation AppDelegate
 
-#pragma mark - HCUserBehaviourDelegate
-- (void)userBehaviourUploadWithFilePath:(NSString *)path
-                         completedBlock:(HCUploadDataCompletedBlock)completedBlock {
-    sleep(2);
-    NSLog(@"AppDelegate completedBlock:%@",completedBlock);
-    completedBlock(nil,nil,YES);
-}
-
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     NSLog(@"didFinishLaunchingWithOptions");
+
     
-    [[HCUserBehaviour sharedInstance] reportPolicy:HCReportPolicyBatch];
+    [[HCUserBehaviour sharedInstance] reportPolicy:HCReportPolicyBatchInterval];
+    [[HCUserBehaviour sharedInstance] setReportInterval:60 * 2];//2分钟
     [[HCUserBehaviour sharedInstance] setBlackPageNameList:@[@"UINavigationController"]];
-    [HCUserBehaviour sharedInstance].delegate = self;
     
     return YES;
 }

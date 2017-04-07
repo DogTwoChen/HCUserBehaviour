@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		088E13B84FAAC2372AC4CC3A /* libPods-HCUserBehaviourDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F27833D8E0EB2D24B99C0D5C /* libPods-HCUserBehaviourDemo.a */; };
 		E31436A31E6941B200FAB895 /* HCUploadDataOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = E31436A21E6941B200FAB895 /* HCUploadDataOperation.m */; };
 		E31436A61E69593D00FAB895 /* HCUploadDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E31436A51E69593D00FAB895 /* HCUploadDataManager.m */; };
 		E35C2B461E557EAD00A919EA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E35C2B451E557EAD00A919EA /* main.m */; };
@@ -29,9 +30,9 @@
 		E3EA10691E94DC4B00BF896B /* HCUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E3EA10681E94DC4B00BF896B /* HCUserTests.m */; };
 		E3EA106D1E94E06000BF896B /* HCPageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E3EA106C1E94E06000BF896B /* HCPageTests.m */; };
 		E3EA106F1E94E60200BF896B /* HCJSONTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E3EA106E1E94E60200BF896B /* HCJSONTests.m */; };
-		E3EA10741E95DCD800BF896B /* HCUploadDataOperationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E3EA10731E95DCD800BF896B /* HCUploadDataOperationTests.m */; };
 		E3EA10771E9644B400BF896B /* HCUploadDataManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E3EA10761E9644B400BF896B /* HCUploadDataManagerTests.m */; };
 		E3EA107A1E96467D00BF896B /* HCTestHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = E3EA10791E96467D00BF896B /* HCTestHelper.m */; };
+		E3EA107C1E9766FD00BF896B /* HCTestHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = E3EA10791E96467D00BF896B /* HCTestHelper.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +46,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1E723E013C537044A0EE695B /* Pods-HCUserBehaviourDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HCUserBehaviourDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HCUserBehaviourDemo/Pods-HCUserBehaviourDemo.debug.xcconfig"; sourceTree = "<group>"; };
+		96D48F66079B06819C6165F4 /* Pods-HCUserBehaviourDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HCUserBehaviourDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-HCUserBehaviourDemo/Pods-HCUserBehaviourDemo.release.xcconfig"; sourceTree = "<group>"; };
 		E31436A11E6941B200FAB895 /* HCUploadDataOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HCUploadDataOperation.h; sourceTree = "<group>"; };
 		E31436A21E6941B200FAB895 /* HCUploadDataOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HCUploadDataOperation.m; sourceTree = "<group>"; };
 		E31436A41E69593D00FAB895 /* HCUploadDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HCUploadDataManager.h; sourceTree = "<group>"; };
@@ -83,11 +86,11 @@
 		E3EA10681E94DC4B00BF896B /* HCUserTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HCUserTests.m; sourceTree = "<group>"; };
 		E3EA106C1E94E06000BF896B /* HCPageTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HCPageTests.m; sourceTree = "<group>"; };
 		E3EA106E1E94E60200BF896B /* HCJSONTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HCJSONTests.m; sourceTree = "<group>"; };
-		E3EA10731E95DCD800BF896B /* HCUploadDataOperationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HCUploadDataOperationTests.m; sourceTree = "<group>"; };
 		E3EA10751E95DFE700BF896B /* HCUserBehaviourProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HCUserBehaviourProtocol.h; sourceTree = "<group>"; };
 		E3EA10761E9644B400BF896B /* HCUploadDataManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HCUploadDataManagerTests.m; sourceTree = "<group>"; };
 		E3EA10781E96467D00BF896B /* HCTestHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HCTestHelper.h; sourceTree = "<group>"; };
 		E3EA10791E96467D00BF896B /* HCTestHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HCTestHelper.m; sourceTree = "<group>"; };
+		F27833D8E0EB2D24B99C0D5C /* libPods-HCUserBehaviourDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HCUserBehaviourDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +98,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				088E13B84FAAC2372AC4CC3A /* libPods-HCUserBehaviourDemo.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,12 +112,31 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9FF2A756A86130BA9A73D39B /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				1E723E013C537044A0EE695B /* Pods-HCUserBehaviourDemo.debug.xcconfig */,
+				96D48F66079B06819C6165F4 /* Pods-HCUserBehaviourDemo.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		CD9286DB4140D58797469442 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F27833D8E0EB2D24B99C0D5C /* libPods-HCUserBehaviourDemo.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		E35C2B381E557EAD00A919EA = {
 			isa = PBXGroup;
 			children = (
 				E35C2B431E557EAD00A919EA /* HCUserBehaviourDemo */,
 				E3EA105E1E94DB4100BF896B /* HCUserBehaviourDemoTests */,
 				E35C2B421E557EAD00A919EA /* Products */,
+				9FF2A756A86130BA9A73D39B /* Pods */,
+				CD9286DB4140D58797469442 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -191,7 +214,6 @@
 				E3EA10681E94DC4B00BF896B /* HCUserTests.m */,
 				E3EA106C1E94E06000BF896B /* HCPageTests.m */,
 				E3EA106E1E94E60200BF896B /* HCJSONTests.m */,
-				E3EA10731E95DCD800BF896B /* HCUploadDataOperationTests.m */,
 				E3EA10761E9644B400BF896B /* HCUploadDataManagerTests.m */,
 			);
 			path = HCUserBehaviourDemoTests;
@@ -204,9 +226,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E35C2B581E557EAD00A919EA /* Build configuration list for PBXNativeTarget "HCUserBehaviourDemo" */;
 			buildPhases = (
+				8D26D20607C4F5EFBC5ECCA8 /* [CP] Check Pods Manifest.lock */,
 				E35C2B3D1E557EAD00A919EA /* Sources */,
 				E35C2B3E1E557EAD00A919EA /* Frameworks */,
 				E35C2B3F1E557EAD00A919EA /* Resources */,
+				EDF81B1FAA015B86AB47724F /* [CP] Embed Pods Frameworks */,
+				AF34598B556081A66E4E0AF8 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -295,11 +320,60 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		8D26D20607C4F5EFBC5ECCA8 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		AF34598B556081A66E4E0AF8 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HCUserBehaviourDemo/Pods-HCUserBehaviourDemo-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		EDF81B1FAA015B86AB47724F /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HCUserBehaviourDemo/Pods-HCUserBehaviourDemo-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		E35C2B3D1E557EAD00A919EA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E3EA107C1E9766FD00BF896B /* HCTestHelper.m in Sources */,
 				E35C2B6D1E56989F00A919EA /* HCLoginViewController.m in Sources */,
 				E35C2B701E56990F00A919EA /* HCGoodsDetailViewController.m in Sources */,
 				E3EA10581E94D29900BF896B /* HCEventTests.m in Sources */,
@@ -323,7 +397,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				E3EA106F1E94E60200BF896B /* HCJSONTests.m in Sources */,
-				E3EA10741E95DCD800BF896B /* HCUploadDataOperationTests.m in Sources */,
 				E3EA107A1E96467D00BF896B /* HCTestHelper.m in Sources */,
 				E3EA10691E94DC4B00BF896B /* HCUserTests.m in Sources */,
 				E3EA10671E94DB8100BF896B /* HCEventTests.m in Sources */,
@@ -452,6 +525,7 @@
 		};
 		E35C2B591E557EAD00A919EA /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1E723E013C537044A0EE695B /* Pods-HCUserBehaviourDemo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = B2TK8ZNGUG;
@@ -467,6 +541,7 @@
 		};
 		E35C2B5A1E557EAD00A919EA /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 96D48F66079B06819C6165F4 /* Pods-HCUserBehaviourDemo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = B2TK8ZNGUG;
@@ -536,6 +611,7 @@
 				E3EA10661E94DB4100BF896B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

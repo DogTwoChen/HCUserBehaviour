@@ -11,9 +11,12 @@
 #import "HCLoginViewController.h"
 #import "HCGoodsDetailViewController.h"
 #import "HCUploadDataManager.h"
+#import "HCTestHelper.h"
 
 @interface ViewController () <UITableViewDelegate,UITableViewDataSource>
-
+{
+    HCUploadDataManager *_uploadManager;
+}
 @end
 
 @implementation ViewController
@@ -22,6 +25,19 @@
     [super viewDidLoad];
     
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"cellID"];
+    
+//    _uploadManager = [HCUploadDataManager sharedManager];
+//    _uploadManager.maxConcurrentUploader = 2;
+//    [HCTestHelper createTestData];
+//    
+//    NSArray *subDir = [HCTestHelper getFiles];
+//    [subDir enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+//        NSString *path = obj;
+//        [_uploadManager uploadWithFilePath:path completed:^(NSData *data, NSError *error, BOOL finished) {
+//            NSLog(@"path(%@) is finished(%@)",path,(finished?@"YES":@"NO"));
+//        }];
+//    }];
+    
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {

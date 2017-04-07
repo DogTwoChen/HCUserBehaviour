@@ -11,10 +11,12 @@
 #import "HCUploadDataOperation.h"
 #import "HCTestHelper.h"
 
-@interface HCUploadDataManagerTests : XCTestCase <HCUserBehaviourProtocol>
+/// 测试用例需要重写
+@interface HCUploadDataManagerTests : XCTestCase
 {
     HCUploadDataManager *_uploadManager;
     dispatch_group_t _group_t;
+    dispatch_semaphore_t _semaphore_t;
 }
 @end
 
@@ -23,9 +25,11 @@
 - (void)setUp {
     [super setUp];
     _group_t = dispatch_group_create();
+    _semaphore_t = dispatch_semaphore_create(0);
     _uploadManager = [HCUploadDataManager sharedManager];
-    _uploadManager.delegate = self;
+    _uploadManager.maxConcurrentUploader = 2;
     [HCTestHelper createTestData];
+    
 }
 
 - (void)tearDown {
@@ -37,18 +41,16 @@
     NSArray *subDir = [HCTestHelper getFiles];
     [subDir enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         NSString *path = obj;
-        dispatch_group_enter(_group_t);
         [_uploadManager uploadWithFilePath:path completed:^(NSData *data, NSError *error, BOOL finished) {
             XCTAssertNil(error, @"operation error should be nil,but error is %@",error);
-            dispatch_group_leave(_group_t);
         }];
     }];
     
     XCTAssertTrue(_uploadManager.operationDict.count == subDir.count, @"the operations count should be equal to files count");
     
-    dispatch_time_t wait_time = dispatch_time(DISPATCH_TIME_NOW, 60 * NSEC_PER_SEC);
-    dispatch_group_wait(_group_t, wait_time);
-    XCTAssertTrue(_uploadManager.currentUploaderCount == 0, @"the operation count should be zero,otherwise timeout");
+//    dispatch_time_t wait_time = dispatch_time(DISPATCH_TIME_NOW, 60 * NSEC_PER_SEC);
+    dispatch_semaphore_wait(_semaphore_t, DISPATCH_TIME_FOREVER);
+    NSLog(@"success");
 }
 
 - (void)test_uploadSuspended_mutipleOperation_suspended {
@@ -95,18 +97,12 @@
     XCTAssertTrue(_uploadManager.currentUploaderCount == 0, @"the operation count should be greater than zero,otherwise susended failed, count is %ld", _uploadManager.currentUploaderCount);
 }
 
+
 - (void)testPerformanceExample {
     // This is an example of a performance test case.
     [self measureBlock:^{
         // Put the code you want to measure the time of here.
     }];
-}
-
-#pragma mark - HCUserBehaviourProtocol
-- (void)userBehaviourUploadWithFilePath:(NSString *)path {
-    sleep(1);
-    HCUploadDataOperation *operation = [_uploadManager getUploadDataOperationWith:path];
-    [operation notifyOperationThatUploadStateWith:nil error:nil isFinished:YES];
 }
 
 @end

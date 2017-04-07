@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-
 #import "HCEvent.h"
 @interface HCPage : NSObject
 

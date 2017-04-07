@@ -11,15 +11,13 @@
 
 @interface HCUploadDataOperation : NSOperation
 
-@property (weak, nonatomic) id <HCUserBehaviourProtocol> delegate;
-
 @property (copy, nonatomic, readonly) NSString *filePath;
 
 - (instancetype)initWithFilePath:(NSString *)filePath
                       completed:(HCUploadDataCompletedBlock)completedBlock
                       cancelled:(HCUploadDataCancelBlock)cancelledBlock;
 
-- (void)notifyOperationThatUploadStateWith:(NSData *)data error:(NSError *)error isFinished:(BOOL)finished;
+- (void)notifyOperationThatUploadStateWith:(id )responseObject error:(NSError *)error isFinished:(BOOL)finished;
 
 - (void)reset;
 

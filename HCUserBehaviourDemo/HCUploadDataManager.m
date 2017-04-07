@@ -80,7 +80,6 @@
     } cancelled:^{
         completedBlock(nil, nil, NO);
     }];
-    operation.delegate = _delegate;
     [_uploaderQueue addOperation:operation];
     
     [_operationMutableDict setObject:operation forKey:path];//path算md5 做 key

@@ -9,6 +9,7 @@
 #import "HCUploadDataOperation.h"
 #import "HCUserBehaviour.h"
 #import <UIKit/UIKit.h>
+#import "AFNetworking.h"
 
 static NSString *const userBehaviourUploadErrorDomain = @"com.haichuan.userBehaviour.HCUploadDataOperation";
 
@@ -47,7 +48,7 @@ static NSString *const userBehaviourUploadErrorDomain = @"com.haichuan.userBehav
     return self;
 }
 
-- (void)main {
+- (void)start {
     @synchronized (self) {
         if (self.isCancelled) {
             self.finished = YES;
@@ -74,12 +75,27 @@ static NSString *const userBehaviourUploadErrorDomain = @"com.haichuan.userBehav
             }];
         }
 #endif
-        if (_delegate && [_delegate respondsToSelector:@selector(userBehaviourUploadWithFilePath:)]) {
-            [_delegate userBehaviourUploadWithFilePath:_filePath];
-            self.executing = YES;
-        } else {
-            //自己实现上传接口
-        }
+        //自己实现上传接口
+        /**/
+        NSData *fileData = [NSData dataWithContentsOfFile:_filePath];
+        NSError *jsonSerializationError;
+        NSDictionary *dictData = [NSJSONSerialization JSONObjectWithData:fileData options:NSJSONReadingMutableContainers error:&jsonSerializationError];
+        
+        NSAssert(jsonSerializationError == nil, @"the JSONSerialization should has not error!,errpr:%@",jsonSerializationError);
+        
+        NSString *requestUrl = @"https://api.leancloud.cn/1.1/classes/Post";
+        AFJSONRequestSerializer *requestSerializer = [AFJSONRequestSerializer serializer];
+        [requestSerializer setValue:@"X1Htn6OE2zLE9rpAb0PWHYJ5-gzGzoHsz" forHTTPHeaderField:@"X-LC-Id"];
+        [requestSerializer setValue:@"lEtBUFav7d6zOhWHFmD5Jp4c" forHTTPHeaderField:@"X-LC-Key"];
+        AFHTTPSessionManager *sessonManager = [AFHTTPSessionManager manager];
+        sessonManager.requestSerializer = requestSerializer;
+        [sessonManager POST:requestUrl parameters:@{@"data":dictData} progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+//            NSLog(@"responseObject:%@",responseObject);
+            [self notifyOperationThatUploadStateWith:responseObject error:nil isFinished:YES];
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            [self notifyOperationThatUploadStateWith:nil error:error isFinished:NO];
+        }];
+        self.executing = YES;
     }
 }
 
@@ -93,17 +109,33 @@ static NSString *const userBehaviourUploadErrorDomain = @"com.haichuan.userBehav
     if (self.cancelBlock) {
         self.cancelBlock();
     }
+    
+    [self done];
+}
+
+- (void)done {
     if (self.isExecuting) {
         self.executing = NO;
     }
     if (!self.isFinished) {
         self.finished = YES;
     }
-    
     [self reset];
 }
 
-- (void)notifyOperationThatUploadStateWith:(NSData *)data
+- (void)setFinished:(BOOL)finished {
+    [self willChangeValueForKey:@"isFinished"];
+    _finished = finished;
+    [self didChangeValueForKey:@"isFinished"];
+}
+
+- (void)setExecuting:(BOOL)executing {
+    [self willChangeValueForKey:@"isExecuting"];
+    _executing = executing;
+    [self didChangeValueForKey:@"isExecuting"];
+}
+
+- (void)notifyOperationThatUploadStateWith:(id )responseObject
                                      error:(NSError *)error
                                 isFinished:(BOOL)finished {
     if (finished) {
@@ -112,14 +144,13 @@ static NSString *const userBehaviourUploadErrorDomain = @"com.haichuan.userBehav
         NSFileManager *fileManager = [NSFileManager defaultManager];
         [fileManager removeItemAtPath:self->_filePath error:&removeFileError];
         if (removeFileError) {
-            //有可能代理中执行了删除
             NSLog(@"removeFileError:%@",removeFileError);
         }
-        self.finished = YES;
-        self.completedBlock(data ,removeFileError,finished);
+        self.completedBlock(responseObject ,removeFileError,finished);
+        [self done];
     } else {
-        self.finished = YES;
-        self.completedBlock(data ,error,finished);
+        self.completedBlock(responseObject ,error,finished);
+        [self done];
     }
 }
 

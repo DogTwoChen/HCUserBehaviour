@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void(^HCUploadDataCompletedBlock)(NSData *data, NSError *error, BOOL finished);
+typedef void(^HCUploadDataCompletedBlock)(id responseObject, NSError *error, BOOL finished);
 
 typedef void(^HCUploadDataCancelBlock)();
 
@@ -22,15 +22,5 @@ typedef void(^HCUploadDataCancelBlock)();
  @return 返回绝对路径
  */
 - (NSString *)userBehaviourDataSavePath;
-
-@required
-
-/**
- 提供保存的用户行为数据路径，开发者提供上传的接口。
- 
- @param path 数据路径
- 或者 通过 path 获取到指定的 NSOperation，调 notifyOperationThatUploadStateWith 方法。
- */
-- (void)userBehaviourUploadWithFilePath:(NSString *)path;
 
 @end

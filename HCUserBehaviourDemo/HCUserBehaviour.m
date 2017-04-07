@@ -22,8 +22,6 @@
 
 @property (nonatomic, strong) dispatch_queue_t concurrentQueue;
 
-@property (nonatomic, strong) dispatch_semaphore_t uploadTaskSemaphore;
-
 @property (nonatomic, strong) NSDateFormatter *dateFormatter;
 
 @property (nonatomic, copy) NSArray *blackNameList;
@@ -74,7 +72,6 @@ static NSString *const kDataSubPath = @"data";
     _lastPages = [NSMutableDictionary new];
     _maxConcurrentUploadNumber = 3;
     _concurrentQueue = dispatch_queue_create("com.hcuserbehaviour.concurrentqueue", DISPATCH_QUEUE_CONCURRENT);
-    _uploadTaskSemaphore = dispatch_semaphore_create(_maxConcurrentUploadNumber * 2);//暂定 6 个
     
     UIDevice *device = [[UIDevice alloc]init];
     _appVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
@@ -146,6 +143,8 @@ static NSString *const kDataSubPath = @"data";
 #pragma mark - 保存/上传等操作
 
 - (void)applicationLaunching {
+    //test
+    _lastUploadTime = [[NSDate new] timeIntervalSince1970];
     if (_reportPolicy == HCReportPolicyBatch) {
         [self uploadData];
     }
@@ -220,9 +219,8 @@ static NSString *const kDataSubPath = @"data";
 - (void)uploadData {
     //构建 操作单元 执行上传文件的任务，串行并行都可以。参考 SDWebImage
     //获取 /data 下面的日期目录列表
-    NSLog(@"开始上传---------");
+    NSLog(@"准备上传---------");
     [HCUploadDataManager sharedManager].maxConcurrentUploader = _maxConcurrentUploadNumber;
-    [HCUploadDataManager sharedManager].delegate = _delegate;
     NSString *documentDirectory;
     if (_delegate && [_delegate respondsToSelector:@selector(userBehaviourDataSavePath)]) {
         documentDirectory = [_delegate userBehaviourDataSavePath];
@@ -260,8 +258,6 @@ static NSString *const kDataSubPath = @"data";
                 NSString *fileExtension = [filePath pathExtension];
                 if ([fileExtension rangeOfString:@"json"].location != NSNotFound) {
                     //则是待上传的文件 323242342.json
-                    //打算用信号量控制...
-                    dispatch_semaphore_wait(_uploadTaskSemaphore, DISPATCH_TIME_FOREVER);
                     //默认 队列里 可以追加的任务最大为：最大并发数 * 2 完成一个则
                     [[HCUploadDataManager sharedManager] uploadWithFilePath:filePath completed:^(NSData *data, NSError *error, BOOL finished) {
                         if (finished) {
@@ -272,7 +268,6 @@ static NSString *const kDataSubPath = @"data";
                             NSLog(@"失败任务路径:%@",filePath);
                             NSLog(@"error：%@",error);
                         }
-                        dispatch_semaphore_signal(_uploadTaskSemaphore);
                     }];
                     NSLog(@"当前队列任务数:%ld",[HCUploadDataManager sharedManager].currentUploaderCount);
                 } else {
@@ -330,9 +325,6 @@ static NSString *const kDataSubPath = @"data";
 
 - (void)setMaxConcurrentUploadNumber:(NSUInteger)maxConcurrentUploadNumber {
     _maxConcurrentUploadNumber = maxConcurrentUploadNumber;
-    @synchronized (_uploadTaskSemaphore) {
-        _uploadTaskSemaphore = dispatch_semaphore_create(_maxConcurrentUploadNumber * 2);
-    }
 }
 
 #pragma mark - 文件操作
