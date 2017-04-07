@@ -104,6 +104,13 @@
 }
 
 - (void)cancelAllDownloads {
+    [_operationMutableDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if ([obj isKindOfClass:[HCUploadDataOperation class]]) {
+            HCUploadDataOperation *op = obj;
+            [op reset];
+        }
+    }];
+    [_operationMutableDict removeAllObjects];
     [_uploaderQueue cancelAllOperations];
 }
 

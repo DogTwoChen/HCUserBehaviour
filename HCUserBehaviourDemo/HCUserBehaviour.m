@@ -263,27 +263,18 @@ static NSString *const kDataSubPath = @"data";
                     //打算用信号量控制...
                     dispatch_semaphore_wait(_uploadTaskSemaphore, DISPATCH_TIME_FOREVER);
                     //默认 队列里 可以追加的任务最大为：最大并发数 * 2 完成一个则
-                    if (_delegate && [_delegate respondsToSelector:@selector(userBehaviourUploadWithFilePath:completedBlock:)]) {
-                        [_delegate userBehaviourUploadWithFilePath:filePath completedBlock:^(NSData *data, NSError *error, BOOL finished) {
-                            if (finished) {
-                                dispatch_semaphore_signal(_uploadTaskSemaphore);
-                                [[HCUploadDataManager sharedManager] uploadWithFilePath:filePath completed:^(NSData *data, NSError *error, BOOL finished) {
-                                    if (finished) {
-                                        NSLog(@"上传任务成功---------");
-                                        NSLog(@"成功任务路径:%@",filePath);
-                                    } else {
-                                        NSLog(@"上传任务失败---------");
-                                        NSLog(@"失败任务路径:%@",filePath);
-                                        NSLog(@"error：%@",error);
-                                    }
-                                    dispatch_semaphore_signal(_uploadTaskSemaphore);
-                                }];
-                                NSLog(@"当前队列任务数:%ld",[HCUploadDataManager sharedManager].currentUploaderCount);
-                            }
-                        }];
-                    } else {
-                        NSLog(@"需要设置代理，自行提供上传接口。");
-                    }
+                    [[HCUploadDataManager sharedManager] uploadWithFilePath:filePath completed:^(NSData *data, NSError *error, BOOL finished) {
+                        if (finished) {
+                            NSLog(@"上传任务成功---------");
+                            NSLog(@"成功任务路径:%@",filePath);
+                        } else {
+                            NSLog(@"上传任务失败---------");
+                            NSLog(@"失败任务路径:%@",filePath);
+                            NSLog(@"error：%@",error);
+                        }
+                        dispatch_semaphore_signal(_uploadTaskSemaphore);
+                    }];
+                    NSLog(@"当前队列任务数:%ld",[HCUploadDataManager sharedManager].currentUploaderCount);
                 } else {
                     //文件不是 json 就不是存储的数据，可能是 .DS_Store 等其它的东西。
                     [self deleteFileWithPath:filePath];

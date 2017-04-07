@@ -21,4 +21,6 @@
 
 - (void)notifyOperationThatUploadStateWith:(NSData *)data error:(NSError *)error isFinished:(BOOL)finished;
 
+- (void)reset;
+
 @end

@@ -87,9 +87,12 @@
     sleep(10);
     [_uploadManager cancelAllDownloads];
     
+    NSLog(@"cancel all count1 is %ld",_uploadManager.currentUploaderCount);
+    sleep(10);
+    NSLog(@"cancel all count2 is %ld",_uploadManager.currentUploaderCount);
     dispatch_time_t wait_time = dispatch_time(DISPATCH_TIME_NOW, 60 * NSEC_PER_SEC);
     dispatch_group_wait(_group_t, wait_time);
-    XCTAssertTrue(_uploadManager.currentUploaderCount > 0, @"the operation count should be greater than zero,otherwise susended failed");
+    XCTAssertTrue(_uploadManager.currentUploaderCount == 0, @"the operation count should be greater than zero,otherwise susended failed, count is %ld", _uploadManager.currentUploaderCount);
 }
 
 - (void)testPerformanceExample {
@@ -100,8 +103,7 @@
 }
 
 #pragma mark - HCUserBehaviourProtocol
-- (void)userBehaviourUploadWithFilePath:(NSString *)path
-                         completedBlock:(HCUploadDataCompletedBlock)completedBlock {
+- (void)userBehaviourUploadWithFilePath:(NSString *)path {
     sleep(1);
     HCUploadDataOperation *operation = [_uploadManager getUploadDataOperationWith:path];
     [operation notifyOperationThatUploadStateWith:nil error:nil isFinished:YES];

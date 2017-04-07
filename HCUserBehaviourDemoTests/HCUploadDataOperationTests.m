@@ -16,6 +16,8 @@
     dispatch_semaphore_t _semaphore_t;
     dispatch_group_t _group_t;
     int _concurrentCount;
+    
+    NSMutableDictionary *_operationDict;
 }
 @end
 
@@ -31,6 +33,8 @@
     _operationQueue.name = @"com.liuhaichuan.HCUploadDataOperationTests.operationQueue";
     
     [HCTestHelper createTestData];
+    
+    _operationDict = [NSMutableDictionary new];
 }
 
 - (void)tearDown {
@@ -54,6 +58,7 @@
         }];
         operation.delegate = self;
         [_operationQueue addOperation:operation];
+        [_operationDict setObject:operation forKey:path];
     }];
 
     dispatch_time_t wait_time = dispatch_time(DISPATCH_TIME_NOW, 60 * NSEC_PER_SEC);
@@ -69,10 +74,10 @@
 }
 
 #pragma mark - HCUserBehaviourProtocol
-- (void)userBehaviourUploadWithFilePath:(NSString *)path
-                         completedBlock:(HCUploadDataCompletedBlock)completedBlock {
+- (void)userBehaviourUploadWithFilePath:(NSString *)path {
     sleep(1);
-    completedBlock(nil, nil, YES);
+    HCUploadDataOperation *op = _operationDict[path];
+    [op notifyOperationThatUploadStateWith:nil error:nil isFinished:YES];
 }
 
 @end
